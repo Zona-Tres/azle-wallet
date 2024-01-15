@@ -1,16 +1,21 @@
 {
-    "scripts": {
-        "dfx_install": "DFX_VERSION=0.15.1 sh -ci \"$(curl -fsSL https://sdk.dfinity.org/install.sh)\"",
-        "replica_start": "dfx start --background",
-        "replica_stop": "dfx stop",
-        "canister_deploy_local": "dfx deploy hello_world",
-        "canister_deploy_mainnet": "dfx deploy --network ic hello_world",
-        "canister_uninstall": "dfx canister uninstall-code hello_world",
-        "canister_call_get_message": "dfx canister call hello_world getMessage",
-        "canister_call_set_message": "dfx canister call hello_world setMessage '(\"Hello world!\")'"
-    },
-    "dependencies": {
-        "azle": "0.19.0"
-    }
+  "name": "azle-custodial-wallet",
+  "scripts": {
+    "preclean": "npm run icp:stop",
+    "clean": "rm -rf .dfx && rm -rf .bitcoin && rm -rf .azle && rm -rf node_modules",
+    "postinstall": "npm run btc:install",
+    "btc:install": "sh ./scripts/bitcoin/install.sh",
+    "btc:start": ".bitcoin/bin/bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/.bitcoin/data --port=18444",
+    "btc:minter": ".bitcoin/bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 $address",
+    "icp:start": "dfx start --background",
+    "icp:start:clean": "dfx start --background --clean",
+    "icp:stop": "dfx stop",
+    "icp:canister:create": "dfx canister create --all",
+    "icp:deploy": "npm run icp:deploy:ckbtc && npm run icp:deploy:apps",
+    "icp:deploy:ckbtc": "sh ./scripts/ckbtc/ckbtc-deploy.sh",
+    "icp:deploy:apps": "sh ./scripts/apps/deploy-apps.sh"
+  },
+  "dependencies": {
+    "azle": "0.19.0"
+  }
 }
-

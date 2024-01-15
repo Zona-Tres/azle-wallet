@@ -1,12 +1,45 @@
 {
+  "version": 1,
   "canisters": {
-    "hello_world": {
+    "ckbtc-ledger": {
       "type": "custom",
-      "main": "backend/index.ts",
-      "candid": "backend/index.did",
-      "build": "npx azle hello_world",
-      "wasm": ".azle/hello_world/hello_world.wasm",
-      "gzip": true
+      "candid": "canisters/ckbtc-ledger/ckbtc-ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/d6d395a480cd6986b4788f4aafffc5c03a07e46e/canisters/ic-icrc1-ledger.wasm.gz"
+    },
+    "ckbtc-minter": {
+      "type": "custom",
+      "candid": "canisters/ckbtc-minter/ckbtc-minter.did",
+      "wasm": "https://download.dfinity.systems/ic/d6d395a480cd6986b4788f4aafffc5c03a07e46e/canisters/ic-ckbtc-minter.wasm.gz"
+    },
+    "ckbtc-kyt": {
+      "type": "custom",
+      "candid": "canisters/ckbtc-kyt/ckbtc-kyt.did",
+      "wasm": "https://download.dfinity.systems/ic/d6d395a480cd6986b4788f4aafffc5c03a07e46e/canisters/ic-ckbtc-kyt.wasm.gz"
+    },
+    "wallet": {
+      "type": "custom",
+      "main": "canisters/wallet/index.ts",
+      "candid": "canisters/wallet/index.did",
+      "build": "npx azle wallet",
+      "wasm": ".azle/wallet/wallet.wasm",
+      "gzip": true,
+      "declarations": {
+        "node_compatibility": true
+      },
+      "env": ["CKBTC_LEDGER_CANISTER_ID, CKBTC_LEDGER_MINTER_ID"]
+    }
+  },
+  "defaults": {
+    "bitcoin": {
+      "enabled": true,
+      "nodes": ["127.0.0.1:18444"],
+      "log_level": "info"
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:4943",
+      "type": "ephemeral"
     }
   }
 }
