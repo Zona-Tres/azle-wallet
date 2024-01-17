@@ -16,6 +16,17 @@
       "candid": "canisters/ckbtc-kyt/ckbtc-kyt.did",
       "wasm": "https://download.dfinity.systems/ic/d6d395a480cd6986b4788f4aafffc5c03a07e46e/canisters/ic-ckbtc-kyt.wasm.gz"
     },
+    "user": {
+      "type": "custom",
+      "main": "canisters/user/index.ts",
+      "candid": "canisters/user/index.did",
+      "build": "npx azle user",
+      "wasm": ".azle/user/user.wasm",
+      "gzip": true,
+      "declarations": {
+        "node_compatibility": true
+      }
+    },
     "wallet": {
       "type": "custom",
       "main": "canisters/wallet/index.ts",
