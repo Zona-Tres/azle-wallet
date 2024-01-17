@@ -51,7 +51,7 @@ export default Canister({
 
         return Ok(true);
     }),
-    getAll: query([], Vec(User), async () => users.values(), { guard: authGuard }),
+    getAll: query([], Vec(User), async () => users.values()),
     addContact: update([text], Result(bool, AddContactErrors), (username) => {
         const user = users.get(ic.caller()).Some;
 
