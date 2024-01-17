@@ -1,5 +1,5 @@
 {
-  "name": "azle-custodial-wallet",
+  "name": "azle-wallet",
   "scripts": {
     "preclean": "npm run icp:stop",
     "clean": "rm -rf .dfx && rm -rf .bitcoin && rm -rf .azle && rm -rf node_modules",
