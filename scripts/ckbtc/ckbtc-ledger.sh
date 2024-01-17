@@ -1,6 +1,6 @@
 #!/bin/bash
 
-read -r -d '' argument << CANDID
+argument=$(cat <<CANDID
 (variant {
     Init = record {
         minting_account = record {
@@ -19,5 +19,6 @@ read -r -d '' argument << CANDID
     }
 })
 CANDID
+)
 
 dfx deploy ckbtc-ledger --argument "$argument"

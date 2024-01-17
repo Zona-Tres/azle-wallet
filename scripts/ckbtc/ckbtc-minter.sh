@@ -1,6 +1,6 @@
 #!/bin/bash
 
-read -r -d '' argument << CANDID
+argument=$(cat <<CANDID
 (variant {
     Init = record {
         btc_network = variant { Regtest };
@@ -14,5 +14,6 @@ read -r -d '' argument << CANDID
     }
 })
 CANDID
+)
 
 dfx deploy ckbtc-minter --argument "$argument"

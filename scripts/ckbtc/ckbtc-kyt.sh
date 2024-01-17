@@ -1,6 +1,6 @@
 #!/bin/bash
 
-read -r -d '' argument << CANDID
+argument=$(cat <<CANDID
 (variant {
     InitArg = record {
       minter_id = principal "$CKBTC_MINTER_CANISTER_ID";
@@ -11,6 +11,7 @@ read -r -d '' argument << CANDID
     }
   })
 CANDID
+)
 
 dfx deploy ckbtc-kyt --argument "$argument"
 
