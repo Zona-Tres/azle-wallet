@@ -25,26 +25,34 @@ const GetWalletByOwnerErrors = Record({
 });
 
 export default Canister({
-    create: update([Principal], Void, async (owner) => {
-        const btcAddress = await ic.call(minter.get_btc_address, {
-            args: [
-                {
-                    owner: Some(ic.id()),
-                    subaccount: Some(
-                        padPrincipalWithZeros(ic.caller().toUint8Array())
-                    )
-                }
-            ]
-        });
+    create: update([], text, async () => {
+        const owner = ic.caller();
+        try {
+            const btcAddress = await ic.call(minter.get_btc_address, {
+                args: [
+                    {
+                        owner: Some(ic.id()),
+                        subaccount: Some(
+                            padPrincipalWithZeros(owner.toUint8Array())
+                        )
+                    }
+                ]
+            });
 
-        const wallet: Wallet = {
-            owner,
-            btcAddress
+            const wallet: Wallet = {
+                owner,
+                btcAddress
+            }
+
+            wallets.insert(owner, wallet);
+
+            return wallet.btcAddress;
+        } catch (error) {
+            throw error;
         }
-
-        wallets.insert(owner, wallet);
     }),
-    getByOwner: query([Principal], Result(Wallet, GetWalletByOwnerErrors), async (owner) => {
+    get: query([], Result(Wallet, GetWalletByOwnerErrors), async () => {
+        const owner = ic.caller();
         const wallet = wallets.get(owner);
 
         if ('None' in wallet) {
