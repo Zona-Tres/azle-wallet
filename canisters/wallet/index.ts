@@ -35,25 +35,26 @@ export default Canister({
     init: init([], setupCanisters),
     postUpgrade: postUpgrade([], setupCanisters),
     create: update([], text, async () => {
-        const owner = ic.caller();
+        const user = ic.caller();
+
         try {
             const btcAddress = await ic.call(minter.get_btc_address, {
                 args: [
                     {
                         owner: Some(ic.id()),
                         subaccount: Some(
-                            padPrincipalWithZeros(owner.toUint8Array())
+                            padPrincipalWithZeros(user.toUint8Array())
                         )
                     }
                 ]
             });
 
             const wallet: Wallet = {
-                owner,
+                owner: user,
                 btcAddress
             }
 
-            wallets.insert(owner, wallet);
+            wallets.insert(user, wallet);
 
             return wallet.btcAddress;
         } catch (error) {
@@ -61,11 +62,11 @@ export default Canister({
         }
     }),
     get: query([], GetWalletResult, async () => {
-        const owner = ic.caller();
-        const wallet = wallets.get(owner).Some;
+        const user = ic.caller();
+        const wallet = wallets.get(user).Some;
 
         if (!wallet) {
-            return Err({ WalletNotFound: owner });
+            return Err({ WalletNotFound: user });
         }
 
         const btcBalance = await ic.call(ledger.icrc1_balance_of, {
@@ -73,7 +74,7 @@ export default Canister({
                 {
                     owner: ic.id(),
                     subaccount: Some(
-                        padPrincipalWithZeros(ic.caller().toUint8Array())
+                        padPrincipalWithZeros(user.toUint8Array())
                     )
                 }
             ]
