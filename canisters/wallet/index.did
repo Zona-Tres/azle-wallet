@@ -1,3 +1,5 @@
 service: () -> {
-    getAddress: () -> (text);
+    create: (principal) -> ();
+    getByOwner: (principal) -> (variant {Ok:record {owner:principal; btcAddress:text}; Err:record {WalletNotFound:principal}}) query;
+    transfer: (principal, principal) -> ();
 }

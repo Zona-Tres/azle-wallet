@@ -1,0 +1,6 @@
+service: () -> {
+    addContact: (text) -> (variant {Ok:bool; Err:variant {ContactAlreadyExists:text; UserNotFound:principal}});
+    create: (text) -> (variant {Ok:bool; Err:variant {UserAlreadyExists:principal; UsernameAlreadyExists:text}});
+    getAll: () -> (vec record {id:principal; username:text; contacts:vec record {username:text}}) query;
+    removeContact: (text) -> (variant {Ok:bool; Err:variant {ContactNotFound:text; UserNotFound:principal}});
+}
