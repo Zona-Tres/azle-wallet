@@ -38,7 +38,7 @@
       "declarations": {
         "node_compatibility": true
       },
-      "env": ["CKBTC_LEDGER_CANISTER_ID, CKBTC_LEDGER_MINTER_ID"]
+      "env": ["CKBTC_LEDGER_CANISTER_ID", "CKBTC_MINTER_CANISTER_ID"]
     }
   },
   "defaults": {
@@ -46,12 +46,6 @@
       "enabled": true,
       "nodes": ["127.0.0.1:18444"],
       "log_level": "info"
-    }
-  },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:4943",
-      "type": "ephemeral"
     }
   }
 }

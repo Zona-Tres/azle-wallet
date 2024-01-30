@@ -1,16 +1,11 @@
-import { blob, Canister, Err, ic, None, Ok, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Void } from 'azle';
-import { managementCanister, Satoshi } from 'azle/canisters/management';
+import { blob, Canister, Err, ic, init, nat64, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Void } from 'azle';
+import { ICRC } from 'azle/canisters/icrc';
 
-// import { ICRC } from 'azle/canisters/icrc';
 import { Minter } from '../ckbtc-minter';
 
-// let ckBTC: typeof ICRC = ICRC(
-//     Principal.fromText("g4xu7-jiaaa-aaaan-aaaaq-cai")
-// );
+let ledger: typeof ICRC;
 
-let minter: typeof Minter = Minter(
-    Principal.fromText("be2us-64aaa-aaaaa-qaabq-cai")
-);
+let minter: typeof Minter;
 
 const Wallet = Record({
     owner: Principal,
@@ -23,7 +18,7 @@ const wallets = StableBTreeMap<Principal, Wallet>(0);
 
 const GetWalletBitcoinResponse = Record({
     address: text,
-    balance: Satoshi,
+    balance: nat64,
 });
 
 const GetWalletResponse = Record({
@@ -36,9 +31,9 @@ const GetWalletErrors = Record({
 
 const GetWalletResult = Result(GetWalletResponse, GetWalletErrors);
 
-const BITCOIN_API_CYCLE_COST = 100_000_000n;
-
 export default Canister({
+    init: init([], setupCanisters),
+    postUpgrade: postUpgrade([], setupCanisters),
     create: update([], text, async () => {
         const owner = ic.caller();
         try {
@@ -73,21 +68,21 @@ export default Canister({
             return Err({ WalletNotFound: owner });
         }
 
-        const satoshi = await ic.call(managementCanister.bitcoin_get_balance, {
+        const btcBalance = await ic.call(ledger.icrc1_balance_of, {
             args: [
                 {
-                    address: wallet.btcAddress,
-                    min_confirmations: None,
-                    network: { Regtest: null }
+                    owner: ic.id(),
+                    subaccount: Some(
+                        padPrincipalWithZeros(ic.caller().toUint8Array())
+                    )
                 }
-            ],
-            cycles: BITCOIN_API_CYCLE_COST
+            ]
         });
 
         const response = {
             btc: {
                 address: wallet.btcAddress,
-                balance: satoshi
+                balance: btcBalance
             }
         }
 
@@ -102,4 +97,20 @@ function padPrincipalWithZeros(blob: blob): blob {
     let newUin8Array = new Uint8Array(32);
     newUin8Array.set(blob);
     return newUin8Array;
+}
+
+function setupCanisters() {
+    ledger = ICRC(
+        Principal.fromText(
+            process.env.CKBTC_LEDGER_CANISTER_ID ??
+            ic.trap('process.env.CKBTC_LEDGER_CANISTER_ID is undefined')
+        )
+    );
+
+    minter = Minter(
+        Principal.fromText(
+            process.env.CKBTC_MINTER_CANISTER_ID ??
+            ic.trap('process.env.CKBTC_MINTER_CANISTER_ID is undefined')
+        )
+    );
 }
