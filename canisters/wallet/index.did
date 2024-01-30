@@ -1,5 +1,5 @@
 service: () -> {
     create: () -> (text);
-    get: () -> (variant {Ok:record {btc:record {balance:nat64; address:text}}; Err:record {WalletNotFound:principal}}) query;
+    get: () -> (variant {Ok:record {ckbtc:record {balance:nat64; address:text}}; Err:record {WalletNotFound:principal}}) query;
     transfer: (text, text) -> ();
 }

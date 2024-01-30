@@ -9,7 +9,7 @@ let minter: typeof Minter;
 
 const Wallet = Record({
     owner: Principal,
-    btcAddress: text,
+    ckbtcAddress: text,
 });
 
 type Wallet = typeof Wallet.tsType;
@@ -22,7 +22,7 @@ const GetWalletBitcoinResponse = Record({
 });
 
 const GetWalletResponse = Record({
-    btc: GetWalletBitcoinResponse
+    ckbtc: GetWalletBitcoinResponse
 });
 
 const GetWalletErrors = Record({
@@ -38,7 +38,7 @@ export default Canister({
         const user = ic.caller();
 
         try {
-            const btcAddress = await ic.call(minter.get_btc_address, {
+            const ckbtcAddress = await ic.call(minter.get_btc_address, {
                 args: [
                     {
                         owner: Some(ic.id()),
@@ -51,12 +51,12 @@ export default Canister({
 
             const wallet: Wallet = {
                 owner: user,
-                btcAddress
+                ckbtcAddress
             }
 
             wallets.insert(user, wallet);
 
-            return wallet.btcAddress;
+            return wallet.ckbtcAddress;
         } catch (error) {
             throw error;
         }
@@ -81,8 +81,8 @@ export default Canister({
         });
 
         const response = {
-            btc: {
-                address: wallet.btcAddress,
+            ckbtc: {
+                address: wallet.ckbtcAddress,
                 balance: btcBalance
             }
         }
