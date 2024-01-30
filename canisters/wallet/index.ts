@@ -1,4 +1,5 @@
-import { blob, Canister, Err, ic, Ok, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Void } from 'azle';
+import { blob, Canister, Err, ic, None, Ok, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Void } from 'azle';
+import { managementCanister, Satoshi } from 'azle/canisters/management';
 
 // import { ICRC } from 'azle/canisters/icrc';
 import { Minter } from '../ckbtc-minter';
@@ -20,9 +21,22 @@ type Wallet = typeof Wallet.tsType;
 
 const wallets = StableBTreeMap<Principal, Wallet>(0);
 
-const GetWalletByOwnerErrors = Record({
+const GetWalletBitcoinResponse = Record({
+    address: text,
+    balance: Satoshi,
+});
+
+const GetWalletResponse = Record({
+    btc: GetWalletBitcoinResponse
+});
+
+const GetWalletErrors = Record({
     WalletNotFound: Principal
 });
+
+const GetWalletResult = Result(GetWalletResponse, GetWalletErrors);
+
+const BITCOIN_API_CYCLE_COST = 100_000_000n;
 
 export default Canister({
     create: update([], text, async () => {
@@ -51,17 +65,35 @@ export default Canister({
             throw error;
         }
     }),
-    get: query([], Result(Wallet, GetWalletByOwnerErrors), async () => {
+    get: query([], GetWalletResult, async () => {
         const owner = ic.caller();
-        const wallet = wallets.get(owner);
+        const wallet = wallets.get(owner).Some;
 
-        if ('None' in wallet) {
+        if (!wallet) {
             return Err({ WalletNotFound: owner });
         }
 
-        return Ok(wallet.Some);
+        const satoshi = await ic.call(managementCanister.bitcoin_get_balance, {
+            args: [
+                {
+                    address: wallet.btcAddress,
+                    min_confirmations: None,
+                    network: { Regtest: null }
+                }
+            ],
+            cycles: BITCOIN_API_CYCLE_COST
+        });
+
+        const response = {
+            btc: {
+                address: wallet.btcAddress,
+                balance: satoshi
+            }
+        }
+
+        return Ok(response);
     }),
-    transfer: update([Principal, Principal], Void, async (from, to) => {
+    transfer: update([text, text], Void, async (from, to) => {
         // TODO: hacer que funcione
     }),
 });
