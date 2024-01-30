@@ -31,6 +31,7 @@
       "type": "custom",
       "main": "canisters/wallet/index.ts",
       "candid": "canisters/wallet/index.did",
+      "dependencies": ["ckbtc-ledger", "ckbtc-minter", "ckbtc-kyt"],
       "build": "npx azle wallet",
       "wasm": ".azle/wallet/wallet.wasm",
       "gzip": true,
