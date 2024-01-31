@@ -1,6 +1,6 @@
-import { blob, Canister, Err, ic, init, nat64, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
+import { blob, Canister, Err, ic, init, nat64, None, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
 import { ICRC } from 'azle/canisters/icrc';
-import { Ledger, hexAddressFromPrincipal, binaryAddressFromPrincipal } from 'azle/canisters/ledger';
+import { Ledger, hexAddressFromPrincipal } from 'azle/canisters/ledger';
 
 import { Minter } from '../ckbtc-minter';
 
@@ -50,10 +50,8 @@ export default Canister({
             const ckbtcAddress = await ic.call(ckbtcMinter.get_btc_address, {
                 args: [
                     {
-                        owner: Some(ic.id()),
-                        subaccount: Some(
-                            padPrincipalWithZeros(user.toUint8Array())
-                        )
+                        owner: Some(user),
+                        subaccount: None
                     }
                 ]
             });
@@ -84,18 +82,17 @@ export default Canister({
         const btcBalance = await ic.call(ckbtcLedger.icrc1_balance_of, {
             args: [
                 {
-                    owner: ic.id(),
-                    subaccount: Some(
-                        padPrincipalWithZeros(user.toUint8Array())
-                    )
+                    owner: user,
+                    subaccount: None
                 }
             ]
         });
 
-        const icpBalance = await ic.call(icpLedger.account_balance, {
+        const icpBalance = await ic.call(icpLedger.icrc1_balance_of, {
             args: [
                 {
-                    account: binaryAddressFromPrincipal(user, 0)
+                    owner: user,
+                    subaccount: None
                 }
             ]
         });
@@ -107,7 +104,7 @@ export default Canister({
             },
             icp: {
                 address: wallet.icpAddress,
-                balance: icpBalance.e8s
+                balance: icpBalance
             }
         }
 
