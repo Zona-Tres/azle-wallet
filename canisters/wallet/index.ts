@@ -1,28 +1,37 @@
-import { blob, Canister, Err, ic, init, nat64, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Void } from 'azle';
+import { blob, Canister, Err, ic, init, nat64, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
 import { ICRC } from 'azle/canisters/icrc';
+import { Ledger, hexAddressFromPrincipal, binaryAddressFromPrincipal } from 'azle/canisters/ledger';
 
 import { Minter } from '../ckbtc-minter';
 
-let ledger: typeof ICRC;
+let ckbtcLedger: typeof ICRC;
+let ckbtcMinter: typeof Minter;
 
-let minter: typeof Minter;
+let icpLedger: typeof Ledger;
 
 const Wallet = Record({
     owner: Principal,
     ckbtcAddress: text,
+    icpAddress: text
 });
 
 type Wallet = typeof Wallet.tsType;
 
 const wallets = StableBTreeMap<Principal, Wallet>(0);
 
-const GetWalletBitcoinResponse = Record({
+const GetWalletCkBtcResponse = Record({
+    address: text,
+    balance: nat64,
+});
+
+const GetWalletIcpResponse = Record({
     address: text,
     balance: nat64,
 });
 
 const GetWalletResponse = Record({
-    ckbtc: GetWalletBitcoinResponse
+    ckbtc: GetWalletCkBtcResponse,
+    icp: GetWalletIcpResponse
 });
 
 const GetWalletErrors = Record({
@@ -34,11 +43,11 @@ const GetWalletResult = Result(GetWalletResponse, GetWalletErrors);
 export default Canister({
     init: init([], setupCanisters),
     postUpgrade: postUpgrade([], setupCanisters),
-    create: update([], text, async () => {
+    create: update([], Vec(text), async () => {
         const user = ic.caller();
 
         try {
-            const ckbtcAddress = await ic.call(minter.get_btc_address, {
+            const ckbtcAddress = await ic.call(ckbtcMinter.get_btc_address, {
                 args: [
                     {
                         owner: Some(ic.id()),
@@ -49,14 +58,17 @@ export default Canister({
                 ]
             });
 
+            const icpAddress = hexAddressFromPrincipal(ic.caller(), 0);
+
             const wallet: Wallet = {
                 owner: user,
-                ckbtcAddress
+                ckbtcAddress,
+                icpAddress
             }
 
             wallets.insert(user, wallet);
 
-            return wallet.ckbtcAddress;
+            return [wallet.ckbtcAddress, wallet.icpAddress];
         } catch (error) {
             throw error;
         }
@@ -69,7 +81,7 @@ export default Canister({
             return Err({ WalletNotFound: user });
         }
 
-        const btcBalance = await ic.call(ledger.icrc1_balance_of, {
+        const btcBalance = await ic.call(ckbtcLedger.icrc1_balance_of, {
             args: [
                 {
                     owner: ic.id(),
@@ -80,10 +92,22 @@ export default Canister({
             ]
         });
 
+        const icpBalance = await ic.call(icpLedger.account_balance, {
+            args: [
+                {
+                    account: binaryAddressFromPrincipal(user, 0)
+                }
+            ]
+        });
+
         const response = {
             ckbtc: {
                 address: wallet.ckbtcAddress,
                 balance: btcBalance
+            },
+            icp: {
+                address: wallet.icpAddress,
+                balance: icpBalance.e8s
             }
         }
 
@@ -101,17 +125,24 @@ function padPrincipalWithZeros(blob: blob): blob {
 }
 
 function setupCanisters() {
-    ledger = ICRC(
+    ckbtcLedger = ICRC(
         Principal.fromText(
             process.env.CKBTC_LEDGER_CANISTER_ID ??
             ic.trap('process.env.CKBTC_LEDGER_CANISTER_ID is undefined')
         )
     );
 
-    minter = Minter(
+    ckbtcMinter = Minter(
         Principal.fromText(
             process.env.CKBTC_MINTER_CANISTER_ID ??
             ic.trap('process.env.CKBTC_MINTER_CANISTER_ID is undefined')
+        )
+    );
+
+    icpLedger = Ledger(
+        Principal.fromText(
+            process.env.ICP_LEDGER_CANISTER_ID ??
+            ic.trap('process.env.ICP_LEDGER_CANISTER_ID is undefined')
         )
     );
 }

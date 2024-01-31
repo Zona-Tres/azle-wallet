@@ -12,7 +12,7 @@
     "icp:start:clean": "dfx start --background --clean",
     "icp:stop": "dfx stop",
     "icp:canister:create": "dfx canister create --all",
-    "icp:deploy": "npm run icp:deploy:ckbtc && npm run icp:deploy:apps",
+    "icp:deploy": "npm run icp:deploy:ckbtc && npm run icp:deploy:icp && npm run icp:deploy:apps",
     "icp:deploy:ckbtc": "sh ./scripts/ckbtc/ckbtc-deploy.sh",
     "icp:deploy:icp": "sh ./scripts/icp/icp-deploy.sh",
     "icp:deploy:apps": "sh ./scripts/apps/deploy-apps.sh"
