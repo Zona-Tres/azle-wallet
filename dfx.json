@@ -16,6 +16,16 @@
       "candid": "canisters/ckbtc-kyt/ckbtc-kyt.did",
       "wasm": "https://download.dfinity.systems/ic/d6d395a480cd6986b4788f4aafffc5c03a07e46e/canisters/ic-ckbtc-kyt.wasm.gz"
     },
+    "icp-ledger": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icp_ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ledger-canister.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
+    },
     "user": {
       "type": "custom",
       "main": "canisters/user/index.ts",
@@ -38,7 +48,11 @@
       "declarations": {
         "node_compatibility": true
       },
-      "env": ["CKBTC_LEDGER_CANISTER_ID", "CKBTC_MINTER_CANISTER_ID"]
+      "env": [
+        "ICP_LEDGER_CANISTER_ID",
+        "CKBTC_LEDGER_CANISTER_ID",
+        "CKBTC_MINTER_CANISTER_ID"
+      ]
     }
   },
   "defaults": {
@@ -47,5 +61,6 @@
       "nodes": ["127.0.0.1:18444"],
       "log_level": "info"
     }
-  }
+  },
+  "output_env_file": ".env"
 }
