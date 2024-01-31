@@ -1,18 +1,20 @@
 {
   "name": "azle-wallet",
+  "description": "A blockchain wallet deployed on the Internet Computer",
   "scripts": {
     "preclean": "npm run icp:stop",
     "clean": "rm -rf .dfx && rm -rf .bitcoin && rm -rf .azle && rm -rf node_modules",
     "postinstall": "npm run btc:install",
     "btc:install": "sh ./scripts/bitcoin/install.sh",
     "btc:start": ".bitcoin/bin/bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/.bitcoin/data --port=18444",
-    "btc:mint": ".bitcoin/bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 $npm_config_address",
+    "btc:mint": ".bitcoin/bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress $npm_config_blocks $npm_config_address",
     "icp:start": "dfx start --clean --enable-bitcoin",
     "icp:start:clean": "dfx start --background --clean",
     "icp:stop": "dfx stop",
     "icp:canister:create": "dfx canister create --all",
     "icp:deploy": "npm run icp:deploy:ckbtc && npm run icp:deploy:apps",
     "icp:deploy:ckbtc": "sh ./scripts/ckbtc/ckbtc-deploy.sh",
+    "icp:deploy:icp": "sh ./scripts/icp/icp-deploy.sh",
     "icp:deploy:apps": "sh ./scripts/apps/deploy-apps.sh"
   },
   "dependencies": {
