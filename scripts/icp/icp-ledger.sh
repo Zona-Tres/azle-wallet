@@ -17,7 +17,7 @@ argument=$(cat <<CANDID
                 };
             };
         };
-        send_whitelist = vec {};        
+        send_whitelist = vec {};
     }
 })
 CANDID
