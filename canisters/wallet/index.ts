@@ -1,12 +1,12 @@
 import { Canister, Err, ic, init, nat64, None, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
-import { Ledger, hexAddressFromPrincipal } from 'azle/canisters/ledger';
 
 import { CkbtcLedger, CkbtcMinter } from './ckbtc';
+import { IcpLedger, IcpMinter } from './icp';
 
 let ckbtcLedger: CkbtcLedger;
 let ckbtcMinter: CkbtcMinter;
-
-let icpLedger: typeof Ledger;
+let icpLedger: IcpLedger;
+let icpMinter: IcpMinter;
 
 const Wallet = Record({
     owner: Principal,
@@ -48,7 +48,7 @@ export default Canister({
         try {
             const ckbtcAddress = await ckbtcMinter.getAddress(Some(user), None);
 
-            const icpAddress = hexAddressFromPrincipal(ic.caller(), 0);
+            const icpAddress = icpMinter.getAddress(user, 0);
 
             const wallet: Wallet = {
                 owner: user,
@@ -72,15 +72,7 @@ export default Canister({
         }
 
         const btcBalance = await ckbtcLedger.getBalance(user, None);
-
-        const icpBalance = await ic.call(icpLedger.icrc1_balance_of, {
-            args: [
-                {
-                    owner: user,
-                    subaccount: None
-                }
-            ]
-        });
+        const icpBalance = await icpLedger.getBalance(user, None);
 
         const response = {
             ckbtc: {
@@ -95,12 +87,12 @@ export default Canister({
 
         return Ok(response);
     }),
-    transfer: update([text, text], Void, async (from, to) => {
+    transfer: update([text, text], Void, async (to, amount) => {
         // TODO: hacer que funcione
     }),
 });
 
-function setupCanisters() {
+function setupCanisters(): void {
     const CKBTC_LEDGER_CANISTER_ID = Principal.fromText(
         process.env.CKBTC_LEDGER_CANISTER_ID ??
         ic.trap('process.env.CKBTC_LEDGER_CANISTER_ID is undefined')
@@ -117,8 +109,7 @@ function setupCanisters() {
     )
 
     ckbtcLedger = new CkbtcLedger(CKBTC_LEDGER_CANISTER_ID);
-
     ckbtcMinter = new CkbtcMinter(CKBTC_MINTER_CANISTER_ID);
-
-    icpLedger = Ledger(ICP_LEDGER_CANISTER_ID);
+    icpLedger = new IcpLedger(ICP_LEDGER_CANISTER_ID);
+    icpMinter = new IcpMinter();
 }
