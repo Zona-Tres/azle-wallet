@@ -1,11 +1,10 @@
-import { blob, Canister, Err, ic, init, nat64, None, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
-import { ICRC } from 'azle/canisters/icrc';
+import { Canister, Err, ic, init, nat64, None, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
 import { Ledger, hexAddressFromPrincipal } from 'azle/canisters/ledger';
 
-import { Minter } from '../ckbtc-minter';
+import { CkbtcLedger, CkbtcMinter } from './ckbtc';
 
-let ckbtcLedger: typeof ICRC;
-let ckbtcMinter: typeof Minter;
+let ckbtcLedger: CkbtcLedger;
+let ckbtcMinter: CkbtcMinter;
 
 let icpLedger: typeof Ledger;
 
@@ -47,14 +46,7 @@ export default Canister({
         const user = ic.caller();
 
         try {
-            const ckbtcAddress = await ic.call(ckbtcMinter.get_btc_address, {
-                args: [
-                    {
-                        owner: Some(user),
-                        subaccount: None
-                    }
-                ]
-            });
+            const ckbtcAddress = await ckbtcMinter.getAddress(Some(user), None);
 
             const icpAddress = hexAddressFromPrincipal(ic.caller(), 0);
 
@@ -79,14 +71,7 @@ export default Canister({
             return Err({ WalletNotFound: user });
         }
 
-        const btcBalance = await ic.call(ckbtcLedger.icrc1_balance_of, {
-            args: [
-                {
-                    owner: user,
-                    subaccount: None
-                }
-            ]
-        });
+        const btcBalance = await ckbtcLedger.getBalance(user, None);
 
         const icpBalance = await ic.call(icpLedger.icrc1_balance_of, {
             args: [
@@ -115,31 +100,25 @@ export default Canister({
     }),
 });
 
-function padPrincipalWithZeros(blob: blob): blob {
-    let newUin8Array = new Uint8Array(32);
-    newUin8Array.set(blob);
-    return newUin8Array;
-}
-
 function setupCanisters() {
-    ckbtcLedger = ICRC(
-        Principal.fromText(
-            process.env.CKBTC_LEDGER_CANISTER_ID ??
-            ic.trap('process.env.CKBTC_LEDGER_CANISTER_ID is undefined')
-        )
+    const CKBTC_LEDGER_CANISTER_ID = Principal.fromText(
+        process.env.CKBTC_LEDGER_CANISTER_ID ??
+        ic.trap('process.env.CKBTC_LEDGER_CANISTER_ID is undefined')
     );
 
-    ckbtcMinter = Minter(
-        Principal.fromText(
-            process.env.CKBTC_MINTER_CANISTER_ID ??
-            ic.trap('process.env.CKBTC_MINTER_CANISTER_ID is undefined')
-        )
+    const CKBTC_MINTER_CANISTER_ID = Principal.fromText(
+        process.env.CKBTC_MINTER_CANISTER_ID ??
+        ic.trap('process.env.CKBTC_MINTER_CANISTER_ID is undefined')
     );
 
-    icpLedger = Ledger(
-        Principal.fromText(
-            process.env.ICP_LEDGER_CANISTER_ID ??
-            ic.trap('process.env.ICP_LEDGER_CANISTER_ID is undefined')
-        )
-    );
+    const ICP_LEDGER_CANISTER_ID = Principal.fromText(
+        process.env.ICP_LEDGER_CANISTER_ID ??
+        ic.trap('process.env.ICP_LEDGER_CANISTER_ID is undefined')
+    )
+
+    ckbtcLedger = new CkbtcLedger(CKBTC_LEDGER_CANISTER_ID);
+
+    ckbtcMinter = new CkbtcMinter(CKBTC_MINTER_CANISTER_ID);
+
+    icpLedger = Ledger(ICP_LEDGER_CANISTER_ID);
 }
