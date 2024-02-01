@@ -6,7 +6,7 @@ dfx identity new minter
 dfx identity use minter
 export ICP_MINTER_ACCOUNT_ID=$(dfx ledger account-id)
 
-export ICP_DEFAULT_ACCOUNT_ID="1c7a48ba6a562aa9eaa2481a9049cdf0433b9738c992d698c31d8abf89cadc79"
+export ICP_DEFAULT_ACCOUNT_ID=$(dfx ledger account-id --of-principal "2vxsx-fae")
 
 ICP_SCRIPTS_DIR=$SCRIPTS_DIR/icp
 
