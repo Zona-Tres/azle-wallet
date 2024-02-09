@@ -2,7 +2,7 @@
 
 SCRIPTS_DIR=$PWD/scripts
 
-source $SCRIPTS_DIR/utils/ic.sh
+. $SCRIPTS_DIR/utils/ic.sh
 
 dfx identity use default
 export CKBTC_DEFAULT_PRINCIPAL=$(dfx identity get-principal)

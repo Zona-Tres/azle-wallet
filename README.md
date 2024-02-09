@@ -16,7 +16,6 @@ npm run icp:start
 Open another terminal and run:
 
 ```
-npm run icp:canister:create
 npm run icp:deploy
 ```
 
