@@ -11,6 +11,7 @@ import {
     nat32,
     nat64,
     nat8,
+    query,
     text,
     update
 } from 'azle';
@@ -59,6 +60,34 @@ const UpdateBalanceError = Variant({
 
 export const UpdateBalanceResult = Result(Vec(UtxoStatus), UpdateBalanceError);
 
+const RetrieveBtcResultOk = Record({
+    block_index: nat64
+});
+
+const RetrieveBtcResultError = Variant({
+    MalformedAddress: text,
+    GenericError: Record({
+        error_message: text,
+        error_code: nat64
+    }),
+    TemporarilyUnavailable: text,
+    AlreadyProcessing: Null,
+    AmountTooLow: nat64,
+    InsufficientFunds: Record({ balance: nat64 })
+});
+
+export const RetrieveBtcResult = Result(RetrieveBtcResultOk, RetrieveBtcResultError);
+
+const RetrieveBtcStatusResult = Variant({
+    Signing: Null,
+    Confirmed: Record({ txid: Vec(nat8) }),
+    Sending: Record({ txid: Vec(nat8) }),
+    AmountTooLow: Null,
+    Unknown: Null,
+    Submitted: Record({ txid: Vec(nat8) }),
+    Pending: Null
+});
+
 export const Minter = Canister({
     get_btc_address: update(
         [
@@ -69,7 +98,6 @@ export const Minter = Canister({
         ],
         text
     ),
-
     update_balance: update(
         [
             Record({
@@ -78,5 +106,20 @@ export const Minter = Canister({
             })
         ],
         UpdateBalanceResult
+    ),
+    retrieve_btc: update(
+        [
+            Record({
+                address: text,
+                amount: nat64
+            })
+        ],
+        RetrieveBtcResult
+    ),
+    retrieve_btc_status: query(
+        [
+            Record({ block_index: nat64 })
+        ],
+        RetrieveBtcStatusResult
     )
 });

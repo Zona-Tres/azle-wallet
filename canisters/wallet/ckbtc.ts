@@ -1,4 +1,4 @@
-import { None, Principal, Some, ic, nat } from "azle";
+import { None, Principal, Some, ic, nat, nat64, text } from "azle";
 import { ICRC } from "azle/canisters/icrc";
 
 import { Minter } from "../../tokens/ckbtc-minter";
@@ -90,6 +90,29 @@ export class CkbtcMinter implements MinterInterface {
                         padPrincipalWithZeros(subaccount.toUint8Array())
                     )
                 }
+            ]
+        });
+
+        return result;
+    }
+
+    public async toBtc(address: text, amount: nat64) {
+        const result = await ic.call(this.minter.retrieve_btc, {
+            args: [
+                {
+                    address,
+                    amount
+                }
+            ]
+        });
+
+        return result;
+    }
+
+    public async toBtcStatus(blockIndex: nat64) {
+        const result = await ic.call(this.minter.retrieve_btc_status, {
+            args: [
+                { block_index: blockIndex }
             ]
         });
 
