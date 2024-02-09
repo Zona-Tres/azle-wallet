@@ -4,7 +4,8 @@ SCRIPTS_DIR=$PWD/scripts
 
 source $SCRIPTS_DIR/utils/ic.sh
 
-export CKBTC_DEFAULT_PRINCIPAL="2vxsx-fae"
+dfx identity use default
+export CKBTC_DEFAULT_PRINCIPAL=$(dfx identity get-principal)
 
 # TODO: Regtest is only for local development
 export CKBTC_LEDGER_CANISTER_ID=$(get_canister_id ckbtc-ledger)

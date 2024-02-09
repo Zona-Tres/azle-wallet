@@ -13,7 +13,14 @@ argument=$(cat <<CANDID
         token_symbol = "ckBTC";
         token_name = "ckBTC";
         metadata = vec {};
-        initial_balances = vec { record { record { owner = principal "${CKBTC_DEFAULT_PRINCIPAL}"; }; ${PRE_MINTED_TOKENS}; }; };
+        initial_balances = vec {
+            record {
+                record {
+                    owner = principal "${CKBTC_LEDGER_CANISTER_ID}";                    
+                }; 
+                ${PRE_MINTED_TOKENS};
+            };
+        };
         archive_options = record {
             num_blocks_to_archive = 0 : nat64;
             trigger_threshold = 0 : nat64;

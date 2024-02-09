@@ -1,5 +1,6 @@
 service: () -> {
     create: () -> (vec text);
     get: () -> (variant {Ok:record {icp:record {balance:nat64; address:text}; ckbtc:record {balance:nat64; address:text}}; Err:record {WalletNotFound:principal}}) query;
-    transfer: (text, text) -> ();
+    transferCkbtc: (principal, nat) -> (bool);
+    updateBalance: () -> ();
 }

@@ -1,9 +1,9 @@
 import { Opt, Principal } from "azle";
 
 export interface LedgerIterface {
-    getBalance: (owner: Principal, subaccount: Opt<Uint8Array>) => Promise<bigint>;
+    getBalance: (subaccount: Principal) => Promise<bigint>;
 }
 
 export interface MinterInterface {
-    getAddress: (owner: Opt<Principal>, subaccount: Opt<Uint8Array>) => Promise<string>;
+    getAddress: (subaccount: Principal) => Promise<string>;
 }

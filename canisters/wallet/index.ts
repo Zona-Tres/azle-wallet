@@ -1,7 +1,8 @@
-import { Canister, Err, ic, init, nat64, None, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
+import { blob, bool, Canister, Err, ic, init, nat, nat64, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
 
 import { CkbtcLedger, CkbtcMinter } from './ckbtc';
 import { IcpLedger, IcpMinter } from './icp';
+import { padPrincipalWithZeros } from './utils';
 
 let ckbtcLedger: CkbtcLedger;
 let ckbtcMinter: CkbtcMinter;
@@ -46,7 +47,7 @@ export default Canister({
         const user = ic.caller();
 
         try {
-            const ckbtcAddress = await ckbtcMinter.getAddress(Some(user), None);
+            const ckbtcAddress = await ckbtcMinter.getAddress(user);
 
             const icpAddress = icpMinter.getAddress(user, 0);
 
@@ -71,8 +72,8 @@ export default Canister({
             return Err({ WalletNotFound: user });
         }
 
-        const btcBalance = await ckbtcLedger.getBalance(user, None);
-        const icpBalance = await icpLedger.getBalance(user, None);
+        const btcBalance = await ckbtcLedger.getBalance(user);
+        const icpBalance = await icpLedger.getBalance(user);
 
         const response = {
             ckbtc: {
@@ -87,9 +88,18 @@ export default Canister({
 
         return Ok(response);
     }),
-    transfer: update([text, text], Void, async (to, amount) => {
-        // TODO: hacer que funcione
+    transferCkbtc: update([Principal, nat], bool, async (to, amount) => {
+        try {
+            await ckbtcLedger.transfer(ic.caller(), to, amount);
+            return true;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
     }),
+    updateBalance: update([], Void, async () => {
+        await ckbtcMinter.updateBalance(ic.caller());
+    })
 });
 
 function setupCanisters(): void {
