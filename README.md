@@ -20,6 +20,14 @@ npm run icp:canister:create
 npm run icp:deploy
 ```
 
+# How to mint ckBTC
+
+```bash
+npm run btc:mint --address=$ADDRESS
+# Sometimes you have to wait a few seconds
+dfx canister call wallet updateBalance
+```
+
 # Troubleshoting
 
 ## Running bitcoind on macOS
