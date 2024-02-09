@@ -1,5 +1,6 @@
-import { None, Principal, Some, ic, nat, nat64, text } from "azle";
+import { None, Principal, Some, float64, ic, nat, nat64, text } from "azle";
 import { ICRC } from "azle/canisters/icrc";
+import BigNumber from "bignumber.js";
 
 import { Minter } from "../../tokens/ckbtc-minter";
 import { LedgerIterface, MinterInterface } from "./icrc.interface";
@@ -12,9 +13,18 @@ export class CkbtcLedger implements LedgerIterface {
         this.ledger = ICRC(this.canisterId);
     }
 
+    public toBitcoin(satoshis: nat): float64 {
+        const bitcoins = new BigNumber(satoshis.toString()).dividedBy(100000000);
+        return bitcoins.toNumber();
+    }
 
-    public async getBalance(subaccount: Principal): Promise<bigint> {
-        const balance = await ic.call(this.ledger.icrc1_balance_of, {
+    public toSatoshis(btcs: float64): nat {
+        const satoshis = new BigNumber(btcs).times(100000000);
+        return BigInt(satoshis.toString());
+    }
+
+    public async getBalance(subaccount: Principal): Promise<number> {
+        const satoshis = await ic.call(this.ledger.icrc1_balance_of, {
             args: [
                 {
                     owner: ic.id(),
@@ -25,14 +35,18 @@ export class CkbtcLedger implements LedgerIterface {
             ]
         });
 
-        return balance;
+        const btcs = this.toBitcoin(satoshis);
+
+        return btcs;
     }
 
     public async transfer(
         from: Principal,
         to: Principal,
-        amount: nat
+        amount: float64
     ) {
+        const satoshis = this.toSatoshis(amount);
+
         const result = await ic.call(this.ledger.icrc1_transfer, {
             args: [
                 {
@@ -47,7 +61,7 @@ export class CkbtcLedger implements LedgerIterface {
                             )
                         )
                     },
-                    amount,
+                    amount: satoshis,
                     fee: None,
                     memo: None,
                     created_at_time: None

@@ -19,6 +19,7 @@
     "icp:deploy:apps": "sh ./scripts/apps/deploy-apps.sh"
   },
   "dependencies": {
-    "azle": "0.19.0"
+    "azle": "0.19.0",
+    "bignumber.js": "^9.1.2"
   }
 }

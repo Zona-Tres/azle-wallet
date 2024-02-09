@@ -1,7 +1,7 @@
 import { Principal } from "azle";
 
 export interface LedgerIterface {
-    getBalance: (subaccount: Principal) => Promise<bigint>;
+    getBalance: (subaccount: Principal) => Promise<number>;
 }
 
 export interface MinterInterface {

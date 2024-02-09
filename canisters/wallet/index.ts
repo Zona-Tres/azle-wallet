@@ -2,9 +2,10 @@ import {
     bool,
     Canister,
     Err,
+    float32,
+    float64,
     ic,
     init,
-    nat,
     nat64,
     Ok,
     postUpgrade,
@@ -39,7 +40,7 @@ const wallets = StableBTreeMap<Principal, Wallet>(0);
 
 const GetWalletCkBtcResponse = Record({
     address: text,
-    balance: nat64,
+    balance: float64,
 });
 
 const GetWalletIcpResponse = Record({
@@ -106,7 +107,7 @@ export default Canister({
 
         return Ok(response);
     }),
-    transferCkbtc: update([Principal, nat], bool, async (to, amount) => {
+    transferCkbtc: update([Principal, float32], bool, async (to, amount) => {
         try {
             await ckbtcLedger.transfer(ic.caller(), to, amount);
             return true;
