@@ -1,6 +1,7 @@
-import { ICRC } from "azle/canisters/icrc";
-import { Minter } from "../ckbtc-minter";
 import { None, Principal, Some, ic, nat } from "azle";
+import { ICRC } from "azle/canisters/icrc";
+
+import { Minter } from "../../tokens/ckbtc-minter";
 import { LedgerIterface, MinterInterface } from "./icrc.interface";
 import { padPrincipalWithZeros } from "./utils";
 

@@ -1,5 +1,11 @@
 import { None, Opt, Principal, Some, ic, nat } from "azle";
-import { Address, Ledger, binaryAddressFromAddress, hexAddressFromPrincipal } from "azle/canisters/ledger";
+import {
+    Address,
+    Ledger,
+    binaryAddressFromAddress,
+    hexAddressFromPrincipal
+} from "azle/canisters/ledger";
+
 import { padPrincipalWithZeros } from "./utils";
 
 export class IcpLedger {

@@ -1,8 +1,26 @@
-import { blob, bool, Canister, Err, ic, init, nat, nat64, Ok, postUpgrade, Principal, query, Record, Result, Some, StableBTreeMap, text, update, Vec, Void } from 'azle';
+import {
+    bool,
+    Canister,
+    Err,
+    ic,
+    init,
+    nat,
+    nat64,
+    Ok,
+    postUpgrade,
+    Principal,
+    query,
+    Record,
+    Result,
+    StableBTreeMap,
+    text,
+    update,
+    Vec,
+    Void
+} from 'azle';
 
 import { CkbtcLedger, CkbtcMinter } from './ckbtc';
 import { IcpLedger, IcpMinter } from './icp';
-import { padPrincipalWithZeros } from './utils';
 
 let ckbtcLedger: CkbtcLedger;
 let ckbtcMinter: CkbtcMinter;

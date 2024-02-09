@@ -1,4 +1,4 @@
-import { Opt, Principal } from "azle";
+import { Principal } from "azle";
 
 export interface LedgerIterface {
     getBalance: (subaccount: Principal) => Promise<bigint>;
